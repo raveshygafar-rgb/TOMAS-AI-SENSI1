@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#090b1d"><title>TOMAS AI SENSI</title>
+<style>
+:root{--bg:#080a19;--card:#11152c;--line:#292e58;--a:#8b5cf6;--b:#22d3ee;--txt:#f4f4ff;--muted:#a7acce}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 50% -10%,#29205d 0,transparent 48%),var(--bg);color:var(--txt);font-family:Tahoma,Arial,sans-serif}
+header{padding:26px 16px;text-align:center;border-bottom:1px solid var(--line)}.logo{font-size:28px;font-weight:900;letter-spacing:1px;color:#fff;text-shadow:0 0 18px var(--a)}.logo span{color:var(--b)}header p{color:var(--muted);font-size:12px}
+main{max-width:900px;margin:auto;padding:16px;display:grid;gap:14px}.card{background:linear-gradient(145deg,#151a38,#0e1228);border:1px solid var(--line);border-radius:17px;padding:17px;box-shadow:0 10px 35px #0005}.card h2{font-size:16px;margin:0 0 15px;color:#c9bcff}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:12px}label{display:block;font-size:12px;color:var(--muted);margin-bottom:7px}select,input,textarea{width:100%;background:#090d21;color:var(--txt);border:1px solid #343b70;border-radius:10px;padding:11px;font:inherit;font-size:13px}
+button{border:0;border-radius:11px;padding:12px 15px;background:linear-gradient(100deg,var(--a),#5865e8);color:white;font-weight:bold;font-size:13px;cursor:pointer}button.alt{background:#20274c;border:1px solid #394477}button.cyan{background:linear-gradient(100deg,#0891b2,#2563eb)}.actions{display:flex;flex-wrap:wrap;gap:9px;margin-top:14px}
+.range{margin:15px 0}.range-top{display:flex;justify-content:space-between;font-size:13px}.range input{padding:0;accent-color:#a78bfa}
+.result{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}.stat{background:#090d21;border:1px solid #2b3262;border-radius:12px;padding:12px;text-align:center}.stat b{display:block;font-size:23px;color:#67e8f9}.stat small{color:var(--muted)}
+#chatlog{height:190px;overflow:auto;background:#090d21;border-radius:12px;padding:10px;font-size:13px;line-height:1.9}.msg{padding:8px 10px;margin:6px 0;border-radius:10px;background:#1b2142}.msg.me{background:#31245d}
+.note{font-size:11px;color:var(--muted);line-height:1.9}.pill{display:inline-block;padding:5px 9px;border-radius:30px;background:#18364a;color:#67e8f9;font-size:11px}
+footer{text-align:center;color:#737b9f;font-size:11px;padding:15px}
+</style></head>
+<body>
+<header><div class="logo">TOMAS <span>AI</span> SENSI</div><p>FREE FIRE • SENSITIVITY LAB • نسخه رایگان آفلاین</p><span class="pill">بدون اشتراک و بدون API</span></header>
+<main>
+<section class="card"><h2>⚙️ ساخت پروفایل بازی</h2><div class="grid">
+<div><label>برند گوشی</label><select id="brand"><option>Samsung</option><option>Xiaomi</option><option>Redmi</option><option>POCO</option><option>iPhone</option><option>Realme</option><option>OPPO</option><option>Vivo</option><option>Other</option></select></div>
+<div><label>مدل گوشی</label><input id="phone" placeholder="مثلاً Galaxy A54"></div>
+<div><label>نرخ نوسازی</label><select id="hz"><option>60Hz</option><option>90Hz</option><option>120Hz</option><option>144Hz</option></select></div>
+<div><label>تعداد انگشت</label><select id="fingers"><option>2</option><option>3</option><option selected>4</option><option>5</option><option>6</option></select></div>
+<div><label>سبک بازی</label><select id="style"><option value="head">هدشات</option><option value="rush">راش</option><option value="balanced">متعادل</option><option value="sniper">اسنایپر</option></select></div>
+<div><label>سطح بازیکن</label><select id="level"><option>تازه‌کار</option><option selected>متوسط</option><option>حرفه‌ای</option></select></div>
+</div><div class="actions"><button onclick="generate()">⚡ تولید سنس پیشنهادی</button><button class="alt" onclick="resetAll()">بازنشانی</button></div></section>
+<section class="card"><h2>🎯 تنظیمات حساسیت</h2><div id="ranges"></div><div class="actions"><button class="cyan" onclick="copyAll()">کپی سنس + آموزش</button><button class="alt" onclick="saveProfile()">ذخیره در همین دستگاه</button><button class="alt" onclick="downloadTxt()">دانلود فایل TXT</button></div><p class="note">این اعداد نقطه شروع پیشنهادی‌اند، نه تنظیم تضمینی. با تمرین و توجه به کنترل گوشی، آن‌ها را شخصی‌سازی کن.</p></section>
+<section class="card"><h2>📊 پروفایل سنس فعلی</h2><div class="result" id="result"></div><p class="note" id="tip">برای ساخت تنظیمات، دکمه تولید سنس را بزن.</p></section>
+<section class="card"><h2>🎮 تمرین هدشات ۱۰ دقیقه‌ای</h2><p class="note">۲ دقیقه نشانه‌گیری آرام، ۳ دقیقه کشیدن نشانه به سمت سر، ۳ دقیقه تمرین تک‌تیر و ۲ دقیقه تمرین در نبرد واقعی. اول دقت را بالا ببر، بعد سرعت را.</p><div class="result"><div class="stat"><b id="timer">10:00</b><small>زمان باقی‌مانده</small></div><div class="stat"><b id="round">آماده</b><small>وضعیت تمرین</small></div></div><div class="actions"><button onclick="startTimer()">شروع تمرین</button><button class="alt" onclick="stopTimer()">توقف / بازنشانی</button></div></section>
+<section class="card"><h2>💬 دستیار راهنمای TOMAS</h2><div id="chatlog"><div class="msg">سلام! درباره سنس، کنترل لگد، HUD یا تمرین هدشات سؤال کن. این نسخه از پاسخ‌های راهنمای داخلی استفاده می‌کند و به سرویس ابری وصل نیست.</div></div><div class="actions"><input id="question" placeholder="مثلاً برای هدشات چه تمرینی کنم؟" onkeydown="if(event.key==='Enter')ask()"><button onclick="ask()">ارسال</button></div></section>
+</main><footer>TOMAS AI SENSI • ابزار کمکی غیررسمی؛ وابسته یا مورد تأیید Garena نیست.</footer>
+<script>
+const names=['General','Red Dot','2x Scope','4x Scope','Sniper Scope','Free Look'];
+let values=[95,90,85,78,50,70],timerId=null,seconds=600;
+const ranges=document.getElementById('ranges');
+function drawRanges(){ranges.innerHTML=names.map((n,i)=>`<div class="range"><div class="range-top"><span>${n}</span><b id="v${i}">${values[i]}</b></div><input type="range" min="0" max="200" value="${values[i]}" oninput="values[${i}]=+this.value;document.getElementById('v${i}').textContent=this.value;render()"></div>`).join('');render()}
+function render(){document.getElementById('result').innerHTML=names.map((n,i)=>`<div class="stat"><b>${values[i]}</b><small>${n}</small></div>`).join('')}
+function generate(){let s=document.getElementById('style').value, hz=parseInt(document.getElementById('hz').value),f=+document.getElementById('fingers').value;let base=s==='head'?[97,92,86,78,52,72]:s==='rush'?[100,96,91,84,55,76]:s==='sniper'?[88,80,74,68,43,65]:[94,88,82,75,48,70];let adj=hz>=120?3:hz===90?1:0;values=base.map((v,i)=>Math.max(20,Math.min(200,v+adj+(f>=5?2:0))));drawRanges();document.getElementById('tip').textContent=`پیشنهاد برای ${document.getElementById('brand').value} ${document.getElementById('phone').value||'(مدل وارد نشده)'}، ${f} انگشت و سبک انتخابی ساخته شد. در Training Ground با تغییرات کوچک آزمایش کن.`}
+function summary(){return `TOMAS AI SENSI\nگوشی: ${document.getElementById('brand').value} ${document.getElementById('phone').value}\nنرخ نوسازی: ${document.getElementById('hz').value}\nتعداد انگشت: ${document.getElementById('fingers').value}\nسبک: ${document.getElementById('style').selectedOptions[0].text}\n${names.map((n,i)=>n+': '+values[i]).join('\n')}\nآموزش: ابتدا در Training Ground نشانه‌گیری و کشیدن آرام به سمت سر را تمرین کن؛ هر بار فقط 3 تا 5 واحد تغییر بده.`}
+async function copyAll(){try{await navigator.clipboard.writeText(summary());alert('سنس و آموزش کپی شد.')}catch(e){prompt('متن را کپی کن:',summary())}}
+function saveProfile(){localStorage.setItem('tomas-sensi',JSON.stringify({values,phone:document.getElementById('phone').value,brand:document.getElementById('brand').value}));alert('پروفایل روی همین دستگاه ذخیره شد.')}
+function downloadTxt(){let a=document.createElement('a'),u=URL.createObjectURL(new Blob([summary()],{type:'text/plain;charset=utf-8'}));a.href=u;a.download='TOMAS-SENSI.txt';a.click();URL.revokeObjectURL(u)}
+function resetAll(){values=[95,90,85,78,50,70];drawRanges()}
+function startTimer(){stopTimer(false);document.getElementById('round').textContent='در حال تمرین';timerId=setInterval(()=>{seconds--;document.getElementById('timer').textContent=String(Math.floor(seconds/60)).padStart(2,'0')+':'+String(seconds%60).padStart(2,'0');if(seconds<=0){stopTimer(false);document.getElementById('round').textContent='تمام شد!';alert('آفرین! تمرین تمام شد.')}},1000)}
+function stopTimer(reset=true){if(timerId)clearInterval(timerId);timerId=null;if(reset){seconds=600;document.getElementById('timer').textContent='10:00';document.getElementById('round').textContent='آماده'}}
+function ask(){let q=document.getElementById('question'),t=q.value.trim();if(!t)return;let log=document.getElementById('chatlog');log.innerHTML+=`<div class="msg me">${escapeHtml(t)}</div>`;let a='برای نتیجه بهتر، در Training Ground تمرین کن و هر بار فقط یک مقدار سنس را ۳ تا ۵ واحد تغییر بده. اگر نشانه از سر رد می‌شود، General یا Red Dot را کمی پایین بیاور؛ اگر به سر نمی‌رسد، کمی بالا ببر.';if(/لگد| recoil/i.test(t))a='برای کنترل لگد، نشانه را با حرکت کوتاه و یکنواخت پایین بکش. حساسیت Red Dot و 2x را کم‌کم تنظیم کن و هر بار فقط یک متغیر را تغییر بده.';if(/هدشات|سر/i.test(t))a='برای هدشات، نشانه را نزدیک بالاتنه قرار بده و با حرکت کوتاه انگشت به سمت سر بکش. ۲۰ بار آرام، ۲۰ بار با سرعت متوسط و سپس در مسابقه تمرین کن.';if(/اسنایپ|اسنایپر/i.test(t))a='برای اسنایپر، حساسیت Sniper Scope را پایین‌تر نگه دار تا نشانه‌گیری دقیق‌تر شود؛ با چند مقدار نزدیک به هم آزمایش کن.';log.innerHTML+=`<div class="msg">${a}</div>`;log.scrollTop=log.scrollHeight;q.value=''}
+function escapeHtml(s){return s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+drawRanges();
+</script></body></html>
