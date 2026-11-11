@@ -1,52 +1,377 @@
-<!doctype html>
-<html lang="fa" dir="rtl">
-<head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#090b1d"><title>TOMAS AI SENSI</title>
-<style>
-:root{--bg:#080a19;--card:#11152c;--line:#292e58;--a:#8b5cf6;--b:#22d3ee;--txt:#f4f4ff;--muted:#a7acce}
-*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 50% -10%,#29205d 0,transparent 48%),var(--bg);color:var(--txt);font-family:Tahoma,Arial,sans-serif}
-header{padding:26px 16px;text-align:center;border-bottom:1px solid var(--line)}.logo{font-size:28px;font-weight:900;letter-spacing:1px;color:#fff;text-shadow:0 0 18px var(--a)}.logo span{color:var(--b)}header p{color:var(--muted);font-size:12px}
-main{max-width:900px;margin:auto;padding:16px;display:grid;gap:14px}.card{background:linear-gradient(145deg,#151a38,#0e1228);border:1px solid var(--line);border-radius:17px;padding:17px;box-shadow:0 10px 35px #0005}.card h2{font-size:16px;margin:0 0 15px;color:#c9bcff}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:12px}label{display:block;font-size:12px;color:var(--muted);margin-bottom:7px}select,input,textarea{width:100%;background:#090d21;color:var(--txt);border:1px solid #343b70;border-radius:10px;padding:11px;font:inherit;font-size:13px}
-button{border:0;border-radius:11px;padding:12px 15px;background:linear-gradient(100deg,var(--a),#5865e8);color:white;font-weight:bold;font-size:13px;cursor:pointer}button.alt{background:#20274c;border:1px solid #394477}button.cyan{background:linear-gradient(100deg,#0891b2,#2563eb)}.actions{display:flex;flex-wrap:wrap;gap:9px;margin-top:14px}
-.range{margin:15px 0}.range-top{display:flex;justify-content:space-between;font-size:13px}.range input{padding:0;accent-color:#a78bfa}
-.result{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}.stat{background:#090d21;border:1px solid #2b3262;border-radius:12px;padding:12px;text-align:center}.stat b{display:block;font-size:23px;color:#67e8f9}.stat small{color:var(--muted)}
-#chatlog{height:190px;overflow:auto;background:#090d21;border-radius:12px;padding:10px;font-size:13px;line-height:1.9}.msg{padding:8px 10px;margin:6px 0;border-radius:10px;background:#1b2142}.msg.me{background:#31245d}
-.note{font-size:11px;color:var(--muted);line-height:1.9}.pill{display:inline-block;padding:5px 9px;border-radius:30px;background:#18364a;color:#67e8f9;font-size:11px}
-footer{text-align:center;color:#737b9f;font-size:11px;padding:15px}
-</style></head>
-<body>
-<header><div class="logo">TOMAS <span>AI</span> SENSI</div><p>FREE FIRE • SENSITIVITY LAB • نسخه رایگان آفلاین</p><span class="pill">بدون اشتراک و بدون API</span></header>
-<main>
-<section class="card"><h2>⚙️ ساخت پروفایل بازی</h2><div class="grid">
-<div><label>برند گوشی</label><select id="brand"><option>Samsung</option><option>Xiaomi</option><option>Redmi</option><option>POCO</option><option>iPhone</option><option>Realme</option><option>OPPO</option><option>Vivo</option><option>Other</option></select></div>
-<div><label>مدل گوشی</label><input id="phone" placeholder="مثلاً Galaxy A54"></div>
-<div><label>نرخ نوسازی</label><select id="hz"><option>60Hz</option><option>90Hz</option><option>120Hz</option><option>144Hz</option></select></div>
-<div><label>تعداد انگشت</label><select id="fingers"><option>2</option><option>3</option><option selected>4</option><option>5</option><option>6</option></select></div>
-<div><label>سبک بازی</label><select id="style"><option value="head">هدشات</option><option value="rush">راش</option><option value="balanced">متعادل</option><option value="sniper">اسنایپر</option></select></div>
-<div><label>سطح بازیکن</label><select id="level"><option>تازه‌کار</option><option selected>متوسط</option><option>حرفه‌ای</option></select></div>
-</div><div class="actions"><button onclick="generate()">⚡ تولید سنس پیشنهادی</button><button class="alt" onclick="resetAll()">بازنشانی</button></div></section>
-<section class="card"><h2>🎯 تنظیمات حساسیت</h2><div id="ranges"></div><div class="actions"><button class="cyan" onclick="copyAll()">کپی سنس + آموزش</button><button class="alt" onclick="saveProfile()">ذخیره در همین دستگاه</button><button class="alt" onclick="downloadTxt()">دانلود فایل TXT</button></div><p class="note">این اعداد نقطه شروع پیشنهادی‌اند، نه تنظیم تضمینی. با تمرین و توجه به کنترل گوشی، آن‌ها را شخصی‌سازی کن.</p></section>
-<section class="card"><h2>📊 پروفایل سنس فعلی</h2><div class="result" id="result"></div><p class="note" id="tip">برای ساخت تنظیمات، دکمه تولید سنس را بزن.</p></section>
-<section class="card"><h2>🎮 تمرین هدشات ۱۰ دقیقه‌ای</h2><p class="note">۲ دقیقه نشانه‌گیری آرام، ۳ دقیقه کشیدن نشانه به سمت سر، ۳ دقیقه تمرین تک‌تیر و ۲ دقیقه تمرین در نبرد واقعی. اول دقت را بالا ببر، بعد سرعت را.</p><div class="result"><div class="stat"><b id="timer">10:00</b><small>زمان باقی‌مانده</small></div><div class="stat"><b id="round">آماده</b><small>وضعیت تمرین</small></div></div><div class="actions"><button onclick="startTimer()">شروع تمرین</button><button class="alt" onclick="stopTimer()">توقف / بازنشانی</button></div></section>
-<section class="card"><h2>💬 دستیار راهنمای TOMAS</h2><div id="chatlog"><div class="msg">سلام! درباره سنس، کنترل لگد، HUD یا تمرین هدشات سؤال کن. این نسخه از پاسخ‌های راهنمای داخلی استفاده می‌کند و به سرویس ابری وصل نیست.</div></div><div class="actions"><input id="question" placeholder="مثلاً برای هدشات چه تمرینی کنم؟" onkeydown="if(event.key==='Enter')ask()"><button onclick="ask()">ارسال</button></div></section>
-</main><footer>TOMAS AI SENSI • ابزار کمکی غیررسمی؛ وابسته یا مورد تأیید Garena نیست.</footer>
-<script>
-const names=['General','Red Dot','2x Scope','4x Scope','Sniper Scope','Free Look'];
-let values=[95,90,85,78,50,70],timerId=null,seconds=600;
-const ranges=document.getElementById('ranges');
-function drawRanges(){ranges.innerHTML=names.map((n,i)=>`<div class="range"><div class="range-top"><span>${n}</span><b id="v${i}">${values[i]}</b></div><input type="range" min="0" max="200" value="${values[i]}" oninput="values[${i}]=+this.value;document.getElementById('v${i}').textContent=this.value;render()"></div>`).join('');render()}
-function render(){document.getElementById('result').innerHTML=names.map((n,i)=>`<div class="stat"><b>${values[i]}</b><small>${n}</small></div>`).join('')}
-function generate(){let s=document.getElementById('style').value, hz=parseInt(document.getElementById('hz').value),f=+document.getElementById('fingers').value;let base=s==='head'?[97,92,86,78,52,72]:s==='rush'?[100,96,91,84,55,76]:s==='sniper'?[88,80,74,68,43,65]:[94,88,82,75,48,70];let adj=hz>=120?3:hz===90?1:0;values=base.map((v,i)=>Math.max(20,Math.min(200,v+adj+(f>=5?2:0))));drawRanges();document.getElementById('tip').textContent=`پیشنهاد برای ${document.getElementById('brand').value} ${document.getElementById('phone').value||'(مدل وارد نشده)'}، ${f} انگشت و سبک انتخابی ساخته شد. در Training Ground با تغییرات کوچک آزمایش کن.`}
-function summary(){return `TOMAS AI SENSI\nگوشی: ${document.getElementById('brand').value} ${document.getElementById('phone').value}\nنرخ نوسازی: ${document.getElementById('hz').value}\nتعداد انگشت: ${document.getElementById('fingers').value}\nسبک: ${document.getElementById('style').selectedOptions[0].text}\n${names.map((n,i)=>n+': '+values[i]).join('\n')}\nآموزش: ابتدا در Training Ground نشانه‌گیری و کشیدن آرام به سمت سر را تمرین کن؛ هر بار فقط 3 تا 5 واحد تغییر بده.`}
-async function copyAll(){try{await navigator.clipboard.writeText(summary());alert('سنس و آموزش کپی شد.')}catch(e){prompt('متن را کپی کن:',summary())}}
-function saveProfile(){localStorage.setItem('tomas-sensi',JSON.stringify({values,phone:document.getElementById('phone').value,brand:document.getElementById('brand').value}));alert('پروفایل روی همین دستگاه ذخیره شد.')}
-function downloadTxt(){let a=document.createElement('a'),u=URL.createObjectURL(new Blob([summary()],{type:'text/plain;charset=utf-8'}));a.href=u;a.download='TOMAS-SENSI.txt';a.click();URL.revokeObjectURL(u)}
-function resetAll(){values=[95,90,85,78,50,70];drawRanges()}
-function startTimer(){stopTimer(false);document.getElementById('round').textContent='در حال تمرین';timerId=setInterval(()=>{seconds--;document.getElementById('timer').textContent=String(Math.floor(seconds/60)).padStart(2,'0')+':'+String(seconds%60).padStart(2,'0');if(seconds<=0){stopTimer(false);document.getElementById('round').textContent='تمام شد!';alert('آفرین! تمرین تمام شد.')}},1000)}
-function stopTimer(reset=true){if(timerId)clearInterval(timerId);timerId=null;if(reset){seconds=600;document.getElementById('timer').textContent='10:00';document.getElementById('round').textContent='آماده'}}
-function ask(){let q=document.getElementById('question'),t=q.value.trim();if(!t)return;let log=document.getElementById('chatlog');log.innerHTML+=`<div class="msg me">${escapeHtml(t)}</div>`;let a='برای نتیجه بهتر، در Training Ground تمرین کن و هر بار فقط یک مقدار سنس را ۳ تا ۵ واحد تغییر بده. اگر نشانه از سر رد می‌شود، General یا Red Dot را کمی پایین بیاور؛ اگر به سر نمی‌رسد، کمی بالا ببر.';if(/لگد| recoil/i.test(t))a='برای کنترل لگد، نشانه را با حرکت کوتاه و یکنواخت پایین بکش. حساسیت Red Dot و 2x را کم‌کم تنظیم کن و هر بار فقط یک متغیر را تغییر بده.';if(/هدشات|سر/i.test(t))a='برای هدشات، نشانه را نزدیک بالاتنه قرار بده و با حرکت کوتاه انگشت به سمت سر بکش. ۲۰ بار آرام، ۲۰ بار با سرعت متوسط و سپس در مسابقه تمرین کن.';if(/اسنایپ|اسنایپر/i.test(t))a='برای اسنایپر، حساسیت Sniper Scope را پایین‌تر نگه دار تا نشانه‌گیری دقیق‌تر شود؛ با چند مقدار نزدیک به هم آزمایش کن.';log.innerHTML+=`<div class="msg">${a}</div>`;log.scrollTop=log.scrollHeight;q.value=''}
-function escapeHtml(s){return s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
-drawRanges();
-</script></body></html>
+import { useState, useRef, useEffect } from "react";
+import { Flame, Send, Copy, Check, Smartphone, Crosshair, MessageCircle, History, Zap, RotateCcw, Target } from "lucide-react";
+
+const API = "https://api.anthropic.com/v1/messages";
+const MODEL = "claude-sonnet-4-6";
+
+async function ask(system, messages) {
+  const res = await fetch(API, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ model: MODEL, max_tokens: 1000, system, messages }),
+  });
+  const data = await res.json();
+  if (data.error) throw new Error(data.error.message || "api error");
+  const out = (data.content || []).map((i) => (i.type === "text" ? i.text : "")).join("");
+  if (!out.trim()) throw new Error("empty reply");
+  return out;
+}
+
+function extractJSON(text) {
+  const s = text.indexOf("{");
+  const e = text.lastIndexOf("}");
+  if (s === -1 || e === -1) throw new Error("no json");
+  return JSON.parse(text.slice(s, e + 1));
+}
+
+const SENS_SYSTEM = `You are the engine of a Free Fire sensitivity panel called TOMAS. Reply ONLY with JSON, no markdown, no extra text.
+If the given name is NOT a real existing smartphone model, reply exactly {"valid":false}.
+Otherwise reply with:
+{"valid":true,"device":"official phone name","specs":"chipset, screen refresh rate (short, Persian ok)","sens":{"general":0-100,"redDot":0-100,"scope2x":0-100,"scope4x":0-100,"sniper":0-100,"freeLook":0-100},"dpi":number,"buttonSize":"max 6 Persian words","headshot":["exactly 5 Persian steps, each max 15 words, teaching how to land headshots with these settings"],"tips":["exactly 2 Persian tips, each max 12 words"]}
+Keep the whole reply under 600 tokens. Tune values to the phone's power, screen size, refresh rate, the player's playstyle, finger count and extra info. Never explain how the panel works.`;
+
+const CHAT_SYSTEM = `You are TOMAS AI, the assistant inside a Free Fire sensitivity panel. Answer in Persian, short and practical, about Free Fire sensitivity, aim, headshots, HUD, settings, and phone optimization. If the user asks how this panel or you were built, politely decline and steer back to Free Fire. If given current sensitivity values, use them.`;
+
+const KEYS = [
+  ["general", "عمومی", "🎯"],
+  ["redDot", "ریددات", "🔴"],
+  ["scope2x", "اسکوپ ۲ برابر", "🔭"],
+  ["scope4x", "اسکوپ ۴ برابر", "🔭"],
+  ["sniper", "اسنایپر", "💥"],
+  ["freeLook", "نگاه آزاد", "👁️"],
+];
+
+const STYLES = ["هدشات‌زن", "رشر", "اسنایپر", "بالانس"];
+const FINGERS = ["۲ انگشت", "۳ انگشت", "۴ انگشت", "۵ انگشت (پنجه)"];
+
+function copyText(t) {
+  try {
+    if (navigator.clipboard && window.isSecureContext) {
+      return navigator.clipboard.writeText(t);
+    }
+  } catch (e) {}
+  const ta = document.createElement("textarea");
+  ta.value = t;
+  ta.style.position = "fixed";
+  ta.style.opacity = "0";
+  document.body.appendChild(ta);
+  ta.select();
+  try { document.execCommand("copy"); } catch (e) {}
+  document.body.removeChild(ta);
+  return Promise.resolve();
+}
+
+function Field({ label, children }) {
+  return (
+    <label className="block">
+      <span className="text-xs text-slate-400 mb-1 block">{label}</span>
+      {children}
+    </label>
+  );
+}
+
+function Chips({ items, value, onChange }) {
+  return (
+    <div className="flex flex-wrap gap-2">
+      {items.map((i) => (
+        <button
+          key={i}
+          onClick={() => onChange(i)}
+          className={
+            "px-3 py-1.5 rounded-lg text-sm border transition " +
+            (value === i
+              ? "bg-orange-500 border-orange-400 text-black font-bold"
+              : "bg-slate-800/70 border-slate-700 text-slate-300")
+          }
+        >
+          {i}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+export default function TomasPanel() {
+  const [tab, setTab] = useState("sens");
+  const [device, setDevice] = useState("");
+  const [style, setStyle] = useState("هدشات‌زن");
+  const [fingers, setFingers] = useState("۴ انگشت");
+  const [extra, setExtra] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [result, setResult] = useState(null);
+  const [sens, setSens] = useState(null);
+  const [copied, setCopied] = useState("");
+  const [history, setHistory] = useState([]);
+  const [msgs, setMsgs] = useState([
+    { role: "assistant", content: "سلام! من هوش مصنوعی TOMAS هستم. درباره سنس، هدشات و تنظیمات فری فایر هرچی خواستی بپرس." },
+  ]);
+  const [input, setInput] = useState("");
+  const [chatLoading, setChatLoading] = useState(false);
+  const endRef = useRef(null);
+
+  useEffect(() => {
+    if (endRef.current) endRef.current.scrollIntoView({ behavior: "smooth" });
+  }, [msgs, chatLoading]);
+
+  const generate = async () => {
+    const name = device.trim();
+    if (!name) { setError("اسم گوشی رو بنویس."); return; }
+    setLoading(true); setError(""); setResult(null);
+    try {
+      const msg = [{
+        role: "user",
+        content: `Phone: ${name}\nPlaystyle: ${style}\nFingers: ${fingers}\nExtra: ${extra || "none"}`,
+      }];
+      let parsed;
+      try {
+        parsed = extractJSON(await ask(SENS_SYSTEM, msg));
+      } catch (e1) {
+        parsed = extractJSON(await ask(SENS_SYSTEM, msg));
+      }
+      if (!parsed.valid) {
+        setError("این گوشی پیدا نشد. اسم دقیق مدل رو بنویس (مثلا Samsung A54).");
+      } else if (!parsed.sens) {
+        setError("جواب کامل نبود، دوباره روی ساخت سنس بزن.");
+      } else {
+        setResult(parsed);
+        setSens(parsed.sens);
+        setHistory((h) => [{ device: parsed.device, style, sens: parsed.sens, t: new Date().toLocaleTimeString("fa-IR") }, ...h].slice(0, 15));
+      }
+    } catch (e) {
+      setError("ارتباط با هوش مصنوعی برقرار نشد. دوباره امتحان کن.");
+    }
+    setLoading(false);
+  };
+
+  const sensText = () => {
+    if (!result || !sens) return "";
+    return KEYS.map(([k, n]) => `${n}: ${sens[k]}`).join("\n");
+  };
+  const fullText = () => {
+    if (!result) return "";
+    return `🔥 TOMAS Sensitivity\n📱 ${result.device}\n\n${sensText()}\nDPI: ${result.dpi}\nدکمه‌ها: ${result.buttonSize}\n\n🎯 آموزش هدشات:\n${(result.headshot || []).map((s, i) => `${i + 1}. ${s}`).join("\n")}`;
+  };
+  const doCopy = async (kind) => {
+    await copyText(kind === "all" ? fullText() : sensText());
+    setCopied(kind);
+    setTimeout(() => setCopied(""), 1800);
+  };
+
+  const send = async (custom) => {
+    const q = (custom || input).trim();
+    if (!q || chatLoading) return;
+    const next = [...msgs, { role: "user", content: q }];
+    setMsgs(next); setInput(""); setChatLoading(true);
+    try {
+      const ctx = sens ? `\n[Current sens: ${JSON.stringify(sens)}, phone: ${result && result.device}]` : "";
+      const apiMsgs = next.slice(1).map((m, i, arr) => ({
+        role: m.role,
+        content: m.content + (i === arr.length - 1 ? ctx : ""),
+      }));
+      const reply = await ask(CHAT_SYSTEM, apiMsgs);
+      setMsgs([...next, { role: "assistant", content: reply }]);
+    } catch (e) {
+      setMsgs([...next, { role: "assistant", content: "خطا در ارتباط. دوباره بفرست." }]);
+    }
+    setChatLoading(false);
+  };
+
+  const tabs = [
+    ["sens", "سنس", Crosshair],
+    ["tut", "آموزش", Target],
+    ["chat", "هوش مصنوعی", MessageCircle],
+    ["hist", "تاریخچه", History],
+  ];
+
+  return (
+    <div dir="rtl" className="min-h-screen bg-slate-950 text-slate-100" style={{ fontFamily: "Tahoma, system-ui, sans-serif" }}>
+      <div className="max-w-xl mx-auto p-4">
+        <div className="relative overflow-hidden rounded-2xl p-5 mb-4 border border-orange-500/30" style={{ background: "linear-gradient(135deg,#1b0f0a 0%,#0b1020 60%,#1a0b24 100%)" }}>
+          <div className="absolute -top-8 -left-8 w-40 h-40 rounded-full" style={{ background: "radial-gradient(circle,rgba(255,106,0,.35),transparent 70%)" }} />
+          <div className="relative flex items-center gap-3">
+            <div className="w-12 h-12 rounded-xl bg-orange-500 flex items-center justify-center">
+              <Flame className="text-black" size={28} />
+            </div>
+            <div>
+              <h1 className="text-3xl font-black tracking-widest" style={{ fontFamily: "Impact, Arial Black, sans-serif" }}>TOMAS</h1>
+              <p className="text-xs text-orange-300">پنل سنس هوشمند فری فایر</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-4 gap-2 mb-4">
+          {tabs.map(([id, label, Icon]) => (
+            <button
+              key={id}
+              onClick={() => setTab(id)}
+              className={
+                "flex flex-col items-center gap-1 py-2 rounded-xl text-xs border transition " +
+                (tab === id ? "bg-orange-500 text-black border-orange-400 font-bold" : "bg-slate-900 border-slate-800 text-slate-400")
+              }
+            >
+              <Icon size={18} />
+              {label}
+            </button>
+          ))}
+        </div>
+
+        {tab === "sens" && (
+          <div className="space-y-4">
+            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-4">
+              <Field label="اسم گوشی">
+                <div className="flex items-center gap-2 bg-slate-800 rounded-xl px-3 border border-slate-700 focus-within:border-orange-500">
+                  <Smartphone size={18} className="text-orange-400" />
+                  <input
+                    value={device}
+                    onChange={(e) => setDevice(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && generate()}
+                    placeholder="مثلا iPhone 13 یا Redmi Note 11"
+                    dir="ltr"
+                    className="w-full bg-transparent py-3 outline-none text-sm"
+                  />
+                </div>
+              </Field>
+              <Field label="سبک بازی"><Chips items={STYLES} value={style} onChange={setStyle} /></Field>
+              <Field label="تعداد انگشت"><Chips items={FINGERS} value={fingers} onChange={setFingers} /></Field>
+              <Field label="توضیح اضافه (اختیاری)">
+                <input
+                  value={extra}
+                  onChange={(e) => setExtra(e.target.value)}
+                  placeholder="مثلا لگ دارم، دستم عرق می‌کنه..."
+                  className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-3 text-sm outline-none focus:border-orange-500"
+                />
+              </Field>
+              <button
+                onClick={generate}
+                disabled={loading}
+                className="w-full py-3 rounded-xl bg-orange-500 text-black font-black flex items-center justify-center gap-2 disabled:opacity-60"
+              >
+                <Zap size={18} />
+                {loading ? "در حال ساخت سنس..." : "ساخت سنس"}
+              </button>
+              {error && <div className="text-sm text-red-300 bg-red-950/50 border border-red-900 rounded-xl p-3">{error}</div>}
+            </div>
+
+            {result && sens && (
+              <div className="bg-slate-900 border border-orange-500/30 rounded-2xl p-4 space-y-4">
+                <div>
+                  <div className="font-bold text-lg" dir="ltr" style={{ textAlign: "right" }}>{result.device}</div>
+                  <div className="text-xs text-slate-400">{result.specs}</div>
+                </div>
+                {KEYS.map(([k, n, e]) => (
+                  <div key={k}>
+                    <div className="flex justify-between text-sm mb-1">
+                      <span>{e} {n}</span>
+                      <span className="font-black text-orange-400">{sens[k]}</span>
+                    </div>
+                    <input
+                      type="range" min="0" max="100" value={sens[k]}
+                      onChange={(ev) => setSens({ ...sens, [k]: Number(ev.target.value) })}
+                      className="w-full accent-orange-500"
+                    />
+                  </div>
+                ))}
+                <div className="grid grid-cols-2 gap-2 text-sm">
+                  <div className="bg-slate-800 rounded-xl p-3"><div className="text-xs text-slate-400">DPI</div><div className="font-bold">{result.dpi}</div></div>
+                  <div className="bg-slate-800 rounded-xl p-3"><div className="text-xs text-slate-400">اندازه دکمه‌ها</div><div className="font-bold text-xs">{result.buttonSize}</div></div>
+                </div>
+                {(result.tips || []).length > 0 && (
+                  <ul className="text-sm text-slate-300 space-y-1 list-disc pr-5">
+                    {result.tips.map((t, i) => <li key={i}>{t}</li>)}
+                  </ul>
+                )}
+                <div className="grid grid-cols-2 gap-2">
+                  <button onClick={() => doCopy("sens")} className="py-3 rounded-xl bg-slate-800 border border-slate-700 text-sm flex items-center justify-center gap-2">
+                    {copied === "sens" ? <Check size={16} /> : <Copy size={16} />} کپی سنس
+                  </button>
+                  <button onClick={() => doCopy("all")} className="py-3 rounded-xl bg-orange-500 text-black font-bold text-sm flex items-center justify-center gap-2">
+                    {copied === "all" ? <Check size={16} /> : <Copy size={16} />} کپی سنس + آموزش
+                  </button>
+                </div>
+                <button onClick={() => setSens(result.sens)} className="w-full text-xs text-slate-400 flex items-center justify-center gap-1">
+                  <RotateCcw size={14} /> بازگردانی مقادیر اولیه
+                </button>
+                <div className="grid grid-cols-2 gap-2">
+                  <button onClick={() => { setTab("chat"); send("سنس خیلی تنده، کمش کن و بگو کدوم مقادیر رو چقدر کم کنم"); }} className="py-2 rounded-xl bg-slate-800 text-xs border border-slate-700">خیلی تنده</button>
+                  <button onClick={() => { setTab("chat"); send("سنس خیلی کنده، بیشترش کن و بگو کدوم مقادیر رو چقدر زیاد کنم"); }} className="py-2 rounded-xl bg-slate-800 text-xs border border-slate-700">خیلی کنده</button>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {tab === "tut" && (
+          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4">
+            {result ? (
+              <>
+                <h2 className="font-bold mb-3 flex items-center gap-2"><Target size={18} className="text-orange-400" /> آموزش هدشات</h2>
+                <ol className="space-y-3">
+                  {(result.headshot || []).map((s, i) => (
+                    <li key={i} className="flex gap-3 text-sm">
+                      <span className="shrink-0 w-6 h-6 rounded-full bg-orange-500 text-black font-black flex items-center justify-center text-xs">{i + 1}</span>
+                      <span className="text-slate-200 leading-7">{s}</span>
+                    </li>
+                  ))}
+                </ol>
+                <button onClick={() => doCopy("all")} className="mt-4 w-full py-3 rounded-xl bg-orange-500 text-black font-bold text-sm flex items-center justify-center gap-2">
+                  {copied === "all" ? <Check size={16} /> : <Copy size={16} />} کپی سنس + آموزش
+                </button>
+              </>
+            ) : (
+              <p className="text-sm text-slate-400 text-center py-6">اول از تب سنس، برای گوشیت سنس بساز تا آموزش هدشات اینجا بیاد.</p>
+            )}
+          </div>
+        )}
+
+        {tab === "chat" && (
+          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-3 flex flex-col" style={{ height: "62vh" }}>
+            <div className="flex-1 overflow-y-auto space-y-2 p-1">
+              {msgs.map((m, i) => (
+                <div key={i} className={"max-w-[85%] rounded-2xl px-3 py-2 text-sm leading-7 whitespace-pre-wrap " + (m.role === "user" ? "bg-orange-500 text-black mr-0 ml-auto" : "bg-slate-800 text-slate-100")}>
+                  {m.content}
+                </div>
+              ))}
+              {chatLoading && <div className="bg-slate-800 rounded-2xl px-3 py-2 text-sm w-fit text-slate-400">در حال فکر کردن...</div>}
+              <div ref={endRef} />
+            </div>
+            <div className="flex gap-2 mt-2">
+              <input
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && send()}
+                placeholder="از هوش مصنوعی بپرس..."
+                className="flex-1 bg-slate-800 border border-slate-700 rounded-xl px-3 py-3 text-sm outline-none focus:border-orange-500"
+              />
+              <button onClick={() => send()} className="w-12 rounded-xl bg-orange-500 text-black flex items-center justify-center">
+                <Send size={18} style={{ transform: "scaleX(-1)" }} />
+              </button>
+            </div>
+          </div>
+        )}
+
+        {tab === "hist" && (
+          <div className="space-y-2">
+            {history.length === 0 && (
+              <p className="text-sm text-slate-400 text-center py-8 bg-slate-900 border border-slate-800 rounded-2xl">هنوز سنسی نساختی.</p>
+            )}
+            {history.map((h, i) => (
+              <button
+                key={i}
+                onClick={() => { setSens(h.sens); setTab("sens"); }}
+                className="w-full text-right bg-slate-900 border border-slate-800 rounded-2xl p-3"
+              >
+                <div className="flex justify-between text-sm">
+                  <span className="font-bold" dir="ltr">{h.device}</span>
+                  <span className="text-xs text-slate-500">{h.t}</span>
+                </div>
+                <div className="text-xs text-slate-400 mt-1">{h.style} · عمومی {h.sens.general} · ریددات {h.sens.redDot}</div>
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+                    
